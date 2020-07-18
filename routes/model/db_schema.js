@@ -32,7 +32,6 @@ const customer = new Schema({
    },
    address1: {
       type: String,
-      required: [true, 'address1 is required']
    },
    address2: {
       type: String,
@@ -41,11 +40,18 @@ const customer = new Schema({
       type: String,
       required: [true, 'telephone1 is required']
    },
-   telephone1: {
+   telephone2: {
       type: String,
+      
    },
    email: {
       type: String,
+      required: [true, 'email is required']
+   },
+   password: {
+      type: String,
+      required: [true, 'password is required']
+
    },
    gender: {
       type: String,
@@ -63,14 +69,28 @@ const customer = new Schema({
    shippingDetails: {
       type: String,
    },
+   others: {
+      type: String,
+   },
+   picture: {
+      type: String,
+   },
+   referral: {
+      type: String,
+   },
+   lastLogin: {
+      type: Date,
+   },
+   dateRegistered: {
+      type: Date,
+   },
    zipcode: {
       type: Number,
-   },
-   typeImage: {
-      type: String
    }
+   
 });
 
 module.exports = {
-   categoryType: mongoose.model('customer', customer),
+   categoryType: mongoose.model('category_type', category_type),
+   customer: mongoose.model('customer', customer),
 };
