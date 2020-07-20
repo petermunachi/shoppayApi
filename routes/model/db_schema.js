@@ -90,7 +90,74 @@ const customer = new Schema({
    
 });
 
+const products = new Schema({
+   transcid: {
+      type: String,
+   },
+   sellerId: {
+      type: Number,
+      required: [true, 'sellerId field is required']
+   },
+   title: {
+      type: String,
+      required: [true, 'title field is required']
+   },
+   location: {
+      type: String,
+      required: [true, 'location field is required']
+   },
+   description: {
+      type: String,
+      required: [true, 'description field is required']
+   },
+   condition: {
+      type: String,
+      required: [true, 'condition field is required']
+   },
+   negotiation: {
+      type: Boolean,
+      required: [true, 'negotiation field is required']
+   },
+   brand: {
+      type: String,
+   },
+   categories: {
+      type: String,
+      required: [true, 'categories field is required']
+   },
+   pcategories: {
+      type: String,
+      required: [true, 'pcategories field is required']
+   },
+   price: {
+      type: String,
+      required: [true, 'price field is required']
+   },
+   picture: {
+      type: String,
+      required: [true, 'picture is required']
+   },
+   publish: {
+      type: Number,
+   },
+   commission: {
+      type: String,
+   },
+   buyerId: {
+      type: String,
+   },
+   date_created: {
+      type: Date,
+      required: [true, 'date_created is required']
+   },
+   sold: {
+      type: Number,
+   }
+ 
+});
+
 module.exports = {
    categoryType: mongoose.model('category_type', category_type),
    customer: mongoose.model('customer', customer),
+   products: mongoose.model('products', products),
 };

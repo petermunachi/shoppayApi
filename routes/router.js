@@ -3,6 +3,11 @@ const bcrypt = require('bcrypt');
 const shoppayRouter = express.Router();
 
 var db_schema = require('./model/db_schema');
+const {
+   validateSignupHandler,
+   validateLoginHandler,
+   validateProductHandler,
+} = require('./model/validation');
 
 var d = new Date();
 var recentDate = d.toDateString();
@@ -89,8 +94,9 @@ shoppayRouter.post('/login', (req, res) => {
                   )
                   .then(value => {
                         response.status = 1;
-                        response.msg = value;
+                        response.msg = result;
                         res.status(200).json(response);
+
                      })
                      .catch(err => {
                         res.status(400).send(err.message);
@@ -156,94 +162,47 @@ shoppayRouter.post('/add_category', (req, res) => {
       });
 });
 
-const checkUser = (email) => {
+shoppayRouter.post('/add_product', (req, res) => {
+   const response = {};
    
+   if (req.body){
+      
+      const validateInput = validateProductHandler(req.body);
+      
+      if(validateInput.status == 1) {
 
-}
+         req.body.date_created = recentDate; req.body.transcid = '';
+         req.body.brand = ''; req.body.publish = '1'; req.body.commission = '';
+         req.body.brand = ''; req.body.publish = 1; req.body.commission = '';
+         req.body.buyerId = ''; req.body.sold = 0; 
+         
+         let productDetails = new db_schema.products(req.body);
 
-const validateSignupHandler = (data) => {
+         productDetails.save()
+            .then(value => {
+               response.status = 1;
+               response.msg = 'Product Added Successfully';
+               res.status(200).json(response);
+            })
+            .catch(err => {
+               res.status(400).send(err.message);
+            });
 
-   // let emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-   let emailReg = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
+      } else if (validateInput.status == 0) {
 
-   let passwordReg = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
+         response.status = 0;
+         response.msg = validateInput.msg;
+         res.status(400).json(response);
 
-   let response = {};
-
-   if (data.firstName == '') {
-      response.msg = 'First name is required';
-      response.status = 0;
-      return response;
+      }
+      
+   }else{
+      res.status(400).send("No request found");
    }
 
-   if (data.lastName == '') {
-      response.msg = 'Last name is required';
-      response.status = 0;
-      return response;
-   }
-   
-   if (data.email == '') {
-      response.msg = 'Email is required';
-      response.status = 0;
-      return response;
-   }
-   
-   if (data.phoneNumber == '') {
-      response.msg = 'Phone number is required';
-      response.status = 0;
-      return response;
-   }
-  
-   if (data.telephone1.length != 11) {
-      response.msg = 'Invalid Phone Number';
-      response.status = 0;
-      return response;
-   }
-   
-   if (!emailReg.test(data.email)) {
-      response.msg = 'Enter a valid email address';
-      response.status = 0;
-      return response;
-   }
-   if (data.password == '') {
-      response.msg = 'Password is required';
-      response.status = 0;
-      return response;
-   }
-   if (passwordReg.test(data.password) == false) {
-      response.msg = 'Password must contain letter and alphabets';
-      response.status = 0;
-      return response;
-   }
-   if (data.gender == '') {
-      response.msg = 'Gender is required';
-      response.status = 0;
-      return response;
-   }
-  
-   response.status = 1;
-   return response;
 
-}
-const validateLoginHandler = (data) => {
+});
 
-   let response = {};
 
-   if (data.email == '') {
-      response.msg = 'Email is required';
-      response.status = 0;
-      return response;
-   }
-   
-   if (data.password == '') {
-      response.msg = 'Password is required';
-      response.status = 0;
-      return response;
-   }
- 
-   response.status = 1;
-   return response;
-
-}
 
 module.exports = shoppayRouter
