@@ -3,6 +3,23 @@ Content-Type: application/json
 
 
 
+
+{
+    "name": "fashion",
+    "typeImage": []
+}
+
+
+###
+POST http://localhost:3000/shoppay/add_subcategory
+Content-Type: application/json
+
+{
+    "name": "clothing accessories",
+    "parent": "5f174e9a8d265f1508cbb7b2"
+}
+
+
 ###
 POST http://localhost:3000/shoppay/signup
 Content-Type: application/json
@@ -26,4 +43,4 @@ Content-Type: application/json
 GET http://localhost:3000/shoppay
 ###
 
-GET http://localhost:3000/shoppay/get_mainCategory
+GET http://localhost:3000/shoppay/get_subcategory/5f174cd08d265f1508cbb7ac

@@ -2,6 +2,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const shoppayRouter = express.Router();
 
+var fs = require("fs");
+var formidable = require('formidable');
+const multer = require('multer')
+
+
+
+
 var db_schema = require('./model/db_schema');
 const {
    validateSignupHandler,
@@ -33,9 +40,9 @@ shoppayRouter.post('/signup', (req, res) => {
                req.body.country = ""; req.body.shippingDetails = ""; req.body.others = "";
                req.body.picture = ""; req.body.referral = ""; req.body.lastLogin = recentDate; req.body.zipcode = "";
 
-               let userDetails = new db_schema.customer(req.body);
+               let userDetailSchema = new db_schema.customer(req.body);
 
-               userDetails.save()
+               userDetailSchema.save()
                   .then(value => {
                      response.status = 1;
                      response.msg = 'Signup successfully';
@@ -54,8 +61,6 @@ shoppayRouter.post('/signup', (req, res) => {
             }
          })
   
-      
-      
       } else if (validateInput.status == 0) {
 
          response.status = 0;
@@ -119,8 +124,6 @@ shoppayRouter.post('/login', (req, res) => {
 
          })
   
-      
-      
       } else if (validateInput.status == 0) {
 
          response.status = 0;
@@ -138,7 +141,7 @@ shoppayRouter.post('/login', (req, res) => {
 
 shoppayRouter.get('/get_mainCategory', (req, res) => {
    
-   db_schema.categoryType.find({ parent: 0, type: "mainCategory" }, function (err, categories) {
+   db_schema.categoryType.find({ parent: "0", type: "mainCategory" }, function (err, categories) {
       if (err)
          console.log(err);
       else
@@ -147,9 +150,41 @@ shoppayRouter.get('/get_mainCategory', (req, res) => {
    
 });
 
+shoppayRouter.get('/get_subcategory/:id', (req, res) => {
+   let id = req.params.id.toString();
+   console.log(req.params.id);
+   
+   db_schema.categoryType.find({ parent: id, type: "subCategory" }, function (err, categories) {
+      if (err)
+         console.log(err);
+      else
+         res.json(categories);
+   })
+   
+});
+
+shoppayRouter.post('/add_subcategory', (req, res) => {
+   req.body.type = "subCategory";
+
+   let categoriesSchema = new db_schema.categoryType(req.body);
+   categoriesSchema.save()
+      .then(value => {
+         console.log(value);
+         res.status(200).json({
+            'sub-categories': 'sub-categories added successfully'
+         });
+      })
+      .catch(err => {
+         // console.log(err);
+         res.status(400).send(err.message);
+      });
+});
 shoppayRouter.post('/add_category', (req, res) => {
-   let categories = new db_schema.categoryType(req.body);
-   categories.save()
+   req.body.parent = "0"; req.body.type = "mainCategory";
+   console.log(req.body);
+
+   let categoriesSchema = new db_schema.categoryType(req.body);
+   categoriesSchema.save()
       .then(value => {
          console.log(value);
          res.status(200).json({
@@ -162,46 +197,24 @@ shoppayRouter.post('/add_category', (req, res) => {
       });
 });
 
-shoppayRouter.post('/add_product', (req, res) => {
-   const response = {};
-   
-   if (req.body){
+
+shoppayRouter.post('/add_product', (req, res, next) => {
+   console.log(req.body);
+   try {
+      // to declare some path to store your converted image
+      const path = './uploads/'+Date.now()+'.jpg'
+      const imgdata = req.body.picture;
+      // to convert base64 format into random filename
+      const base64Data = imgdata.replace(/^data:([A-Za-z-+/]+);base64,/, '');
       
-      const validateInput = validateProductHandler(req.body);
-      
-      if(validateInput.status == 1) {
-
-         req.body.date_created = recentDate; req.body.transcid = '';
-         req.body.brand = ''; req.body.publish = '1'; req.body.commission = '';
-         req.body.brand = ''; req.body.publish = 1; req.body.commission = '';
-         req.body.buyerId = ''; req.body.sold = 0; 
-         
-         let productDetails = new db_schema.products(req.body);
-
-         productDetails.save()
-            .then(value => {
-               response.status = 1;
-               response.msg = 'Product Added Successfully';
-               res.status(200).json(response);
-            })
-            .catch(err => {
-               res.status(400).send(err.message);
-            });
-
-      } else if (validateInput.status == 0) {
-
-         response.status = 0;
-         response.msg = validateInput.msg;
-         res.status(400).json(response);
-
-      }
-      
-   }else{
-      res.status(400).send("No request found");
+      fs.writeFileSync(path, base64Data,  {encoding: 'base64'});
+      return res.send(path);
+   } catch (e) {
+        next(e);
    }
-
-
 });
+
+
 
 
 

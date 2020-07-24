@@ -11,13 +11,14 @@ const category_type = new Schema({
       required: [true, 'Type field is required']
    },
    parent: {
-      type: Number,
+      type: String,
       required: [true, 'Please supply a parent Id 0 for main category']
    },
    typeImage: {
-      type: String
+      type: Array
    }
 });
+
 const customer = new Schema({
    firstName: {
       type: String,
@@ -95,7 +96,7 @@ const products = new Schema({
       type: String,
    },
    sellerId: {
-      type: Number,
+      type: String,
       required: [true, 'sellerId field is required']
    },
    title: {
@@ -134,7 +135,7 @@ const products = new Schema({
       required: [true, 'price field is required']
    },
    picture: {
-      type: String,
+      type: Array,
       required: [true, 'picture is required']
    },
    publish: {
@@ -159,5 +160,5 @@ const products = new Schema({
 module.exports = {
    categoryType: mongoose.model('category_type', category_type),
    customer: mongoose.model('customer', customer),
-   products: mongoose.model('products', products),
+   products: mongoose.model('products', products)
 };

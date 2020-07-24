@@ -63,6 +63,27 @@ exports.validateSignupHandler = function (data) {
 
 }
 
+exports.validateLoginHandler = function (data) {
+
+   let response = {};
+
+   if (data.email == '') {
+      response.msg = 'Email is required';
+      response.status = 0;
+      return response;
+   }
+
+   if (data.password == '') {
+      response.msg = 'Password is required';
+      response.status = 0;
+      return response;
+   }
+
+   response.status = 1;
+   return response;
+
+}
+
 exports.validateProductHandler = function (data) {
 
    let response = {};
@@ -127,4 +148,3 @@ exports.validateProductHandler = function (data) {
    return response;
 
 }
-

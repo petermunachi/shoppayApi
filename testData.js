@@ -1,3 +1,5 @@
+
+
 export const userDetail = {
   id: 1,
   firstName: "Peter",
@@ -7,6 +9,8 @@ export const userDetail = {
   address: "No 1 Enugu Road",
   password: "pass123"
 }
+
+
 
 
 export const productMainCategories = [
