@@ -106,7 +106,7 @@ exports.validateProductHandler = function (data) {
       return response;
    }
 
-   if (data.location == '') {
+   if (data.location == '' || data.location == undefined) {
       response.msg = 'Product location or city is required';
       response.status = 0;
       return response;

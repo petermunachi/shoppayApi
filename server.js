@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const _ = require('lodash');
 
-app.use(express.json());
+// app.use(express.json());
 
 var API = require('./routes/router');
 var connection = require('./routes/model/db_connection');
@@ -24,9 +24,11 @@ app.use(fileUpload({
   createParentPath: true
 }));
 
+app.use(express.static(__dirname + '/uploads'));
+
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json({limit: '30mb', extended: true}))
+app.use(bodyParser.urlencoded({limit: '30mb', extended: true}))
 // app.use(morgan('dev'));
 app.use('/shoppay', API);
 

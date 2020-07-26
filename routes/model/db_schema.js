@@ -122,6 +122,9 @@ const products = new Schema({
    brand: {
       type: String,
    },
+   num_of_views: {
+      type: Number,
+   },
    categories: {
       type: String,
       required: [true, 'categories field is required']

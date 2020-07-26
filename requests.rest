@@ -44,3 +44,6 @@ GET http://localhost:3000/shoppay
 ###
 
 GET http://localhost:3000/shoppay/get_subcategory/5f174cd08d265f1508cbb7ac
+###
+
+GET http://localhost:3000/shoppay/latest_product

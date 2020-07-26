@@ -5,19 +5,34 @@ const shoppayRouter = express.Router();
 var fs = require("fs");
 var formidable = require('formidable');
 const multer = require('multer')
-
+const Mime = require('mime/Mime');
 
 
 
 var db_schema = require('./model/db_schema');
+var state = require('../state.json');
+var lga = require('../lga.json');
+
 const {
    validateSignupHandler,
    validateLoginHandler,
    validateProductHandler,
 } = require('./model/validation');
+const { log } = require('console');
 
-var d = new Date();
-var recentDate = d.toDateString();
+var dateStamp = new Date();
+var timeStamp = dateStamp.getTime();
+var recentDate = dateStamp.toDateString();
+
+function generateRandomString(length) {
+   var result = '';
+   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   var charactersLength = characters.length;
+   for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
 
 
 shoppayRouter.post('/signup', (req, res) => {
@@ -139,6 +154,15 @@ shoppayRouter.post('/login', (req, res) => {
 });
 
 
+shoppayRouter.get('/latest_product', (req, res) => {
+   db_schema.products.find({}).limit(100).sort({ date_created : 1 } ).exec(function(err, result) {  
+      if (err)
+         console.log(err);
+      else
+         res.json(result);
+   });  
+   
+});
 shoppayRouter.get('/get_mainCategory', (req, res) => {
    
    db_schema.categoryType.find({ parent: "0", type: "mainCategory" }, function (err, categories) {
@@ -147,6 +171,37 @@ shoppayRouter.get('/get_mainCategory', (req, res) => {
       else
          res.json(categories);
    })
+   
+});
+
+shoppayRouter.get('/states', (req, res) => {
+   res.json(state);
+   
+});
+shoppayRouter.get('/lga/:id', (req, res) => {
+   let id = parseInt(req.params.id);
+   console.log(id);
+   let local = lga;
+
+   let returnedArray = [];
+
+   for (const states in local) {
+      if (local.hasOwnProperty(states)) {
+         const element = local[states];
+         // console.log(element.state.name);
+         if (element.state.id == id) {
+            console.log(local);
+            returnedArray = element.state.locals;
+
+         }
+         
+      }
+   }
+
+   // console.log(returnedArray);
+   res.json(returnedArray);
+
+   
    
 });
 
@@ -197,21 +252,62 @@ shoppayRouter.post('/add_category', (req, res) => {
       });
 });
 
+shoppayRouter.post('/add_product', (req, res)=>{
+   const response = {};
+  
+   if (req.body) {
+      const validateInput = validateProductHandler(req.body);
+      if (validateInput.status == 1) {
+         let photo = req.body.picture;
+         let savedPhotos = [];
+         // console.log(photo);
+         req.body.transcid = ''; req.body.brand = ''; req.body.num_of_views = 0; 
+         req.body.picture = savedPhotos; req.body.publish = 1; req.body.commission = "";
+         req.body.buyerId = ""; req.body.date_created = recentDate; req.body.sold = 0;
+         
+         if (!photo) {
+            return new Error('Invalid Input String')
+         }
+         
+         for (let i = 0; i < photo.length; i++) {
+            let photobase = photo[i].photobase64;
+            let url = photo[i].photourl;
+            // console.log(url);
 
-shoppayRouter.post('/add_product', (req, res, next) => {
-   console.log(req.body);
-   try {
-      // to declare some path to store your converted image
-      const path = './uploads/'+Date.now()+'.jpg'
-      const imgdata = req.body.picture;
-      // to convert base64 format into random filename
-      const base64Data = imgdata.replace(/^data:([A-Za-z-+/]+);base64,/, '');
-      
-      fs.writeFileSync(path, base64Data,  {encoding: 'base64'});
-      return res.send(path);
-   } catch (e) {
-        next(e);
+            let res = Buffer.from(photobase, 'base64');
+            let name = generateRandomString(5);
+            let secondName = generateRandomString(3);
+            let decodeImg = res;
+            let imageBuffer = decodeImg;
+            let extension = url.split('.').pop();
+            // http: //192.168.43.12:3000/
+            let fileName = name + timeStamp + secondName + "." + extension;
+            savedPhotos.push(fileName)
+            fs.writeFileSync('./uploads/' + fileName, imageBuffer, 'utf8');
+         }
+         // console.log(savedPhotos);
+         let productsSchema = new db_schema.products(req.body);
+         productsSchema.save()
+            .then(value => {
+               console.log(value);
+               response.status = 1;
+               res.status(200).json(response);
+            })
+            .catch(err => {
+               console.log(err);
+               res.status(400).send(err.message);
+            });
+      } else if (validateInput.status == 0) {
+
+         response.status = 0;
+         response.msg = validateInput.msg;
+         res.status(400).json(response);
+
+      }
+   } else {
+      res.status(400).send("No request found");
    }
+   
 });
 
 
