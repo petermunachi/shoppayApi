@@ -43,7 +43,9 @@ Content-Type: application/json
 GET http://localhost:3000/shoppay
 ###
 
-GET http://localhost:3000/shoppay/get_subcategory/5f174cd08d265f1508cbb7ac
+GET http://192.168.0.12:3000/shoppay/get_subcategory/5f174e8b8d265f1508cbb7b1
+
+
 ###
 
-GET http://localhost:3000/shoppay/latest_product
+GET http://192.168.0.12:3000/shoppay/latest_product

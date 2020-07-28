@@ -164,7 +164,7 @@ shoppayRouter.get('/latest_product', (req, res) => {
    
 });
 shoppayRouter.get('/get_mainCategory', (req, res) => {
-   
+
    db_schema.categoryType.find({ parent: "0", type: "mainCategory" }, function (err, categories) {
       if (err)
          console.log(err);
@@ -214,6 +214,18 @@ shoppayRouter.get('/get_subcategory/:id', (req, res) => {
          console.log(err);
       else
          res.json(categories);
+   })
+   
+});
+shoppayRouter.get('/product_list/:id', (req, res) => {
+   let id = req.params.id.toString();
+   console.log(req.params.id);
+   
+   db_schema.products.find({ categories: id }, function (err, products) {
+      if (err)
+         console.log(err);
+      else
+         res.json(products);
    })
    
 });
@@ -268,6 +280,8 @@ shoppayRouter.post('/add_product', (req, res)=>{
          if (!photo) {
             return new Error('Invalid Input String')
          }
+
+         let fullUrl = req.protocol + '://' + req.get('host')+'/';
          
          for (let i = 0; i < photo.length; i++) {
             let photobase = photo[i].photobase64;
@@ -282,10 +296,10 @@ shoppayRouter.post('/add_product', (req, res)=>{
             let extension = url.split('.').pop();
             // http: //192.168.43.12:3000/
             let fileName = name + timeStamp + secondName + "." + extension;
-            savedPhotos.push(fileName)
+            savedPhotos.push(fullUrl+fileName)
             fs.writeFileSync('./uploads/' + fileName, imageBuffer, 'utf8');
          }
-         // console.log(savedPhotos);
+         
          let productsSchema = new db_schema.products(req.body);
          productsSchema.save()
             .then(value => {
