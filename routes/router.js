@@ -100,6 +100,9 @@ shoppayRouter.post('/login', (req, res) => {
       const validateInput = validateLoginHandler(req.body);
       if(validateInput.status == 1) {
 
+
+         
+
          db_schema.customer.find({ email: req.body.email }, function (err, result) {
             if (result.length == 1) {
 
